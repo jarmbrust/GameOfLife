@@ -5,7 +5,6 @@ import Grid from './GameOfLife/Grid'
 function App() {
   return (
     <div className="App">
-   
       <Grid/>
     </div>
   );
