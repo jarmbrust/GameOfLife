@@ -1,8 +1,37 @@
-.cell {
-  // width: 20px;
-  // height: 20px;
-  // border: 1px solid black;
-}
-.grid-space {
+// .grid-space {
+//   display: flex;
+//   flex-direction: column;
+//   flex: 1;
+// }
 
+.grid-space  {
+  display: flex;
+  flex: 1;
+  padding: 20px;
+}
+
+// .headerContainer {
+//   display: flex;
+//   flex-direction: column;
+//   flex: 1;
+// }
+
+.row {
+  .cell {
+    width: 20px;
+    height: 20px;
+    border: 1px solid black;
+    flex: 1;
+    display: flex;
+  }
+  .live {
+    background-color: darkgrey;
+  }
+  .dead {
+    background-color: white;
+  }
+}
+
+.btn-start {
+  margin: 10px;
 }

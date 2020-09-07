@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Cell from './Cell';
 import '../styles/App.scss';
 
 const Grid = () => {
@@ -6,39 +7,28 @@ const Grid = () => {
   const numRows = 20;
   const numCols = 20;
 
-  const [grid, setGrid] = useState(() => {
-    const rows = [];
-    for (let num of Array(numRows)) {
-      rows.push(Array(numCols).fill(0));
-    }
-    return rows;
-  });
+	const cellStatus = () => {
+		return Math.random() < 0.2 ? 'live' : 'dead';
+	}
 
-  console.log(grid);
+	const initialBoard = () => {
+		let cellRow = [];
+		let cellGrid = [];
+		
+		for (let i = 0; i < numRows; i++) {
+			for (let j = 0; j < numCols; j++) {
+				cellRow.push(<Cell key={[i,j]} status={cellStatus()} />);
+			}
+			cellGrid.push(<div className="row" key={i} >{cellRow}</div>);
+			cellRow = [];
+		}
+		return cellGrid;
+	}
+
 
 	return (
-		<div 
-			className="grid-space"
-			style={{
-				display: 'grid',
-				gridTemplateColumns: `repeat(${numCols}, 20px)`
-			}}
-		>
-			{grid.map((rows, i) => 
-				rows.map((col, j) =>  (
-					<div 
-						key={`${i}-${j}`} 
-						className="cell"
-						style={{
-							backgroundColor: grid[i][j] ? 'grey' : 'white',
-						  width: 20,
-							height: 20,
-							border: 'solid 1px black',
-						}}>
-					</div>
-				))
-      )}
-      
+		<div className="grid-space">
+			{initialBoard()}
     </div>
   );
 };

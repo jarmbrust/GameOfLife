@@ -1,11 +1,13 @@
 import React from 'react';
-import './App.css';
-import Grid from './GameOfLife/Grid'
+import './styles/App.scss';
+import Grid from './GameOfLife/Grid';
+import Interface from './GameOfLife/Interface';
 
 function App() {
   return (
     <div className="App">
-      <Grid/>
+      <Interface />
+      <Grid />
     </div>
   );
 }
