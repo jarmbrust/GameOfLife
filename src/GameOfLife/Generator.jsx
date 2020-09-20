@@ -4,13 +4,13 @@
 // Any live cell with more than three live neighbours dies, as if by overpopulation.
 // Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Grid from './Grid';
 import Cell from './Cell';
 
 const Generator = props => {
 
-  console.log(props)
+  console.log('ptopd', props)
 
   const numRows = 20;
 	const numCols = 20;
@@ -57,24 +57,32 @@ const Generator = props => {
 		return 1;
   }
   
+  
   const advanceGeneration = () => {
-    const test = cellGrid.map(grid => grid.props.children);
+    const universe = cellGrid.map(grid => grid.props.children);
+    console.log('universe', universe)
+    
+    const rows = universe.map((row, index) => row[index].props)
+    console.log('rows', rows)
+
+
+    // const test2 = rows.map(grid => grid[5].props)
+
+    // console.log('test2',test2, test2[4].x, test2[4].y, test2.x, test2.y);
+
+    // let count = 0;
+    // for (let x of test) {
+    //   // console.log(value);
+    //   for (let y of x) {
+    //     console.log(y);
+    //     // console.log(y.props.status);
+    //     // console.log(y.props.x);
+    //     // y.props.status = Math.random() < 0.2 ? 'live' : 'dead';
+    //   }
+    //   count = count + 1;
+    // }
 
     
-    const test2 = test.map(grid => grid[5].props)
-
-    let count = 0;
-    for (let x of test) {
-      // console.log(value);
-      for (let y of x) {
-        console.log(y);
-        console.log(y.props.status);
-        // y.props.status = Math.random() < 0.2 ? 'live' : 'dead';
-      }
-      count = count + 1;
-    }
-
-    console.log('test',test, test2[4].x, test2[4].y, test2.x, test2.y);
 
     // console.log('cellGrid:', cellGrid[1].props.children[0].props.x, cellGrid[0].props.children[0].props.y, cellGrid[1].props.children);
   }
@@ -98,8 +106,8 @@ const Generator = props => {
 							key={[i,j]} 
 							status={setInitialGrid()} 
 							pendingStatus={cellPendingStatus()} 
-							x={i} 
-							y={j} 
+							cordx={i} 
+							cordy={j} 
 						/>
 					);
 				}
