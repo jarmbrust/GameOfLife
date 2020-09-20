@@ -19,8 +19,20 @@ const Generator = props => {
   const [generation, setGeneration] = useState(0);
 
 
-  const findNeighbors = () => {
+  const findNeighbors = (universe, x, y) => {
+    let neighborCount = 0;
     const directions = [[1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0]];
+    
+    let livingNeighbors = directions.map((dir, index) => {
+      let newx = x + dir[0];
+      let newy = y + dir[1];
+      let result = universe[newx] && universe[newy] ? universe[newx][newy].props.status : 'dead';
+      neighborCount = result === 'live' ? neighborCount + 1 : neighborCount;
+      return result;
+    })
+
+    console.log('livingNeighbors', livingNeighbors, neighborCount)
+
   };
 
   
@@ -62,7 +74,14 @@ const Generator = props => {
     const universe = cellGrid.map(grid => grid.props.children);
     console.log('universe', universe)
     
-    const rows = universe.map((row, index) => row[index].props)
+    const rows = universe.map((row, index) => {
+
+      console.log('>>>', row[index].props.cordx, row[index].props.cordy, index)
+      findNeighbors(universe, row[index].props.cordx, row[index].props.cordy)
+
+      return row[index].props
+    
+    })
     console.log('rows', rows)
 
 
