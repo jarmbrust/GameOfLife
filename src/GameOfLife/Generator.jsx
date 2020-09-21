@@ -10,7 +10,7 @@ import Cell from './Cell';
 
 const Generator = props => {
 
-  console.log('ptopd', props)
+  // console.log('ptopd', props)
 
   const numRows = 20;
 	const numCols = 20;
@@ -21,43 +21,29 @@ const Generator = props => {
 
   const findNeighbors = (universe, x, y) => {
     let neighborCount = 0;
-    const directions = [[1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0]];
+    const directions = [[-1, 0], [-1, -1], [1, 0], [1, -1], [0, 1], [1, 1], [-1, 1], [0, -1]];
     
-    let livingNeighbors = directions.map((dir, index) => {
+    directions.map(dir => {
       let newx = x + dir[0];
       let newy = y + dir[1];
-      let result = universe[newx] && universe[newy] ? universe[newx][newy].props.status : 'dead';
+      let result = universe[newx] && universe[newy] && universe[newx][newy] ? universe[newx][newy].props.status : 'dead';
       neighborCount = result === 'live' ? neighborCount + 1 : neighborCount;
-      return result;
+      return neighborCount;
     })
 
-    console.log('livingNeighbors', livingNeighbors, neighborCount)
-
+    // console.log('livingNeighbors', livingNeighbors, neighborCount)
+    return neighborCount;
   };
 
   
   useEffect(() => {
     setTimeout(function () {
-      if (generation < 5) {
+      if (generation < 3) {
         console.log('generation', generation);
         setGeneration(generation => generation + 1);
       }
     }, 2000);
   }, [generation]);
-
-  
-
-
-  // const calculateNeighbors = (board, x, y) => {[]
-  //     let x1 = x + dir[1];
-  
-  //     if (x1 >= 0 && x1 < cols && y1 >= 0 && y1 < rows && board[y1][x1]) {
-  //       neighbors++;
-  //     }
-  //   }
-  
-  //   return neighbors;
-  // }
 
 
 
@@ -74,36 +60,21 @@ const Generator = props => {
     const universe = cellGrid.map(grid => grid.props.children);
     console.log('universe', universe)
     
-    const rows = universe.map((row, index) => {
+    const rows = universe.map((row) => {
 
-      console.log('>>>', row[index].props.cordx, row[index].props.cordy, index)
-      findNeighbors(universe, row[index].props.cordx, row[index].props.cordy)
-
-      return row[index].props
-    
+      let cell = row.map(c => {
+        // console.log('>>>', c );//c[index].props.cordx, c[index].props.cordy, index)
+        const neighbors = findNeighbors(universe, c.props.cordx, c.props.cordy);
+        // console.log('neighbors', neighbors)
+        return neighbors;
+      })
+      
+      // console.log('cell', cell);
+      return cell;
+      
     })
-    console.log('rows', rows)
-
-
-    // const test2 = rows.map(grid => grid[5].props)
-
-    // console.log('test2',test2, test2[4].x, test2[4].y, test2.x, test2.y);
-
-    // let count = 0;
-    // for (let x of test) {
-    //   // console.log(value);
-    //   for (let y of x) {
-    //     console.log(y);
-    //     // console.log(y.props.status);
-    //     // console.log(y.props.x);
-    //     // y.props.status = Math.random() < 0.2 ? 'live' : 'dead';
-    //   }
-    //   count = count + 1;
-    // }
-
-    
-
-    // console.log('cellGrid:', cellGrid[1].props.children[0].props.x, cellGrid[0].props.children[0].props.y, cellGrid[1].props.children);
+    // console.log('rows', rows)
+    return rows;
   }
 
   const cellPendingStatus = () => {
@@ -124,7 +95,7 @@ const Generator = props => {
 						<Cell 
 							key={[i,j]} 
 							status={setInitialGrid()} 
-							pendingStatus={cellPendingStatus()} 
+							// pendingStatus={cellPendingStatus()} 
 							cordx={i} 
 							cordy={j} 
 						/>
@@ -133,8 +104,26 @@ const Generator = props => {
 				addRow(<div className="row" key={i} >{cellRow}</div>);
 				cellRow = [];
 			}
-		} else {
-			advanceGeneration();
+    } 
+    else {
+      const gen = advanceGeneration();
+      console.log('gen', gen);
+      // let cellRow = [];
+			// for (let i = 0; i < numRows; i++) {
+			// 	for (let j = 0; j < numCols; j++) {
+			// 		cellRow.push(
+			// 			<Cell 
+			// 				key={[i,j]} 
+			// 				status={advanceGeneration()} 
+			// 				// pendingStatus={cellPendingStatus()} 
+			// 				cordx={i} 
+			// 				cordy={j} 
+			// 			/>
+			// 		);
+			// 	}
+			// 	addRow(<div className="row" key={i} >{cellRow}</div>);
+			// 	cellRow = [];
+			// }
 		}
 	}, [generation]);
 
