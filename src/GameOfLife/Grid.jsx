@@ -6,11 +6,11 @@ const Grid = props => {
 
   console.log('props.cellGrid', props.cellGrid)
 	
-	return (
-		<div className="grid-space">
+	return(
+		<div key={props.cellGrid} className="grid-space">
 			{props.cellGrid}
     </div>
-  );
+	);
 };
 
 export default Grid;

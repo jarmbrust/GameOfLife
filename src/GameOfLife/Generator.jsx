@@ -10,222 +10,115 @@ import Cell from './Cell';
 
 const Generator = props => {
 
-  // console.log('ptopd', props)
+  const numRows = 50;
+	const numCols = 50;
 
-  const numRows = 20;
-	const numCols = 20;
-	
-	const [cellGrid, setCellGrid] = useState([]);
   const [generation, setGeneration] = useState(0);
-
+  const [cellGrid, setCellGrid] = useState([]);
+  const [gridResults, setGridResults] = useState([]);
 
   const findNeighbors = (universe, x, y) => {
     let neighborCount = 0;
     const directions = [[-1, 0], [-1, -1], [1, 0], [1, -1], [0, 1], [1, 1], [-1, 1], [0, -1]];
     
-    // console.log('(universe, x, y)',universe, x, y)
-
-
     directions.map(dir => {
       let newx = x + dir[0];
       let newy = y + dir[1];
       let result = universe[newx] && universe[newy] && universe[newx][newy] ? universe[newx][newy].props.status : 'dead';
       neighborCount = result === 'live' ? neighborCount + 1 : neighborCount;
       return neighborCount;
-    })
+    });
 
     const homeCell = universe[x][y];
-    console.log('homeCell', homeCell, neighborCount);
     if (homeCell) {
       return [homeCell.props.status, neighborCount];
-    } 
-    //else ??
-  };
-
-  
-
-  // const [count, setCount] = React.useState(0);
-  // React.useEffect( () => {
-  //   const i_id = setInterval(() => {
-  //     setCount(currCount => currCount+1)
-  //   },3000);
-  //   return () => {
-  //     clearInterval(i_id);
-  //   }
-  // },[]);
-  
-  // const advanceGeneration = () => {
-  //   const universe = cellGrid.map(grid => grid.props.children);
-  //   const rows = universe.map((row) => {
-  //     let cell = row.map(c => {
-  //       const neighbors = findNeighbors(universe, c.props.cordx, c.props.cordy);
-  //       return neighbors;
-  //     });
-  //     return cell;
-  //   });
-  //   return rows;
-  // }
-
-  // const addRowCallback = useCallback(() => {
-    const addRow = row => {
-      console.log('row', row)
-      setCellGrid(cellGrid => [...cellGrid, row]);
-      // gridRef.current = cellGrid;
+    } else {
+      return [];
     }
-    // return addRow;
-  // }, [cellGrid]);
+  };
+ 
 
-
-
-  const advanceGenerationCallback = useCallback(() => {
-    const universe = cellGrid.map(grid => grid.props.children);
-    const rows = universe.map((row) => {
-      let cell = row.map(c => {
-        const neighbors = findNeighbors(universe, c.props.cordx, c.props.cordy);
-        return neighbors;
+  const doingStuff = useCallback(() => {
+      const universe = cellGrid.map(grid => grid.props.children);
+      let tempGrid = [];
+      universe.map(row => {
+        let rows = row.map(c => {
+          return findNeighbors(universe, c.props.cordx, c.props.cordy);
+        });
+        tempGrid.push(rows);
       });
-      return cell;
-    });
-    return rows;
-  },[cellGrid]);
+      return tempGrid;
+  }, [cellGrid]);
 
 
-  const gridRef = useRef([]);
-  gridRef.current = [];
+
+  const buildGrid = useCallback(() => {
+    let cellRow = [];
+    setCellGrid([]);
+    let testGrid = [];
+    if (generation > 0) { testGrid = doingStuff(); }
+    for (let i = 0; i < numRows; i++) {
+      for (let j = 0; j < numCols; j++) {
+        cellRow.push(
+          <Cell 
+            key={[i,j]} 
+            status={generation === 0 ? setInitialGrid() : cellStatus(testGrid[i][j])} 
+            cordx={i} 
+            cordy={j} 
+          />
+        );
+      }
+      const row = <div className="row" key={i} >{cellRow}</div>;
+      setCellGrid(cellGrid => [...cellGrid, row])
+      cellRow = [];
+    }
+    console.log('cellGrid >>>>> ', cellGrid)
+    return cellGrid;
+  }, [generation, doingStuff, cellGrid])
 
 
 
   useEffect(() => {
     const test = setInterval(function () {
-      if (generation < 3) {
-        console.log('GENERATION:::', generation);
+      if (generation < 50) {
+        console.log('generation:', generation)
+        setGridResults(buildGrid())
         setGeneration(generation => generation + 1);
-        if (generation === 0) {
-          let cellRow = [];
-          for (let i = 0; i < numRows; i++) {
-            for (let j = 0; j < numCols; j++) {
-              cellRow.push(
-                <Cell 
-                  key={[i,j]} 
-                  status={setInitialGrid()} 
-                  // pendingStatus={cellPendingStatus()} 
-                  cordx={i} 
-                  cordy={j} 
-                />
-              );
-            }
-            addRow(<div className="row" key={i} >{cellRow}</div>, i);
-            cellRow = [];
-          }
-        } else {
-          const gen = advanceGenerationCallback();
-          console.log('gen>>>', gen);
-          let cellRow = [];
-          setCellGrid([]);
-          for (let i = 0; i < numRows; i++) {
-            for (let j = 0; j < numCols; j++) {
-              console.log('<><><><><><> ', cellStatus(gen[i][j]));
-              cellRow.push(
-                <Cell 
-                  key={[i,j]}
-                  status={cellStatus(gen[i][j])}
-                  cordx={i}
-                  cordy={j}
-                />
-              );
-            }
-            
-            addRow(<div className="row" key={i} >{cellRow}</div>, i);
-            cellRow = [];
-
-          }
-        }
+        console.log('>>>><<<<<',gridResults)
       }
-      // return;
-    }, 2000);
+    }, 1000);
     return () => {
       clearInterval(test);
     }
-  }, [generation, advanceGenerationCallback]);
+  }, [generation, buildGrid, gridResults]);
 
 
+  
 
 	const setInitialGrid = () => {
-    return Math.random() < 0.2 ? 'live' : 'dead';
+    return Math.random() < 0.3 ? 'live' : 'dead';
 	};
 	
 	const cellStatus = cell=> {
-    // console.log(':::::',cell[0], cell[1]);
-    if (cell[0] === 'alive' && cell[1] < 2) {
+    if (cell[0] === 'live' && cell[1] < 2) {
       return 'dead';
-    } else if (cell[0] === 'alive' && (cell[1] === 2 || cell[1] === 3)) {
-      return 'alive';
-    } else if (cell[0] === 'alive' && cell[1] > 3) {
+    } else if (cell[0] === 'live' && (cell[1] === 2 || cell[1] === 3)) {
+      return 'live';
+    } else if (cell[0] === 'live' && cell[1] > 3) {
       return 'dead';
     } else if (cell[0] === 'dead' && cell[1] === 3) {
-      return 'alive';
+      return 'live';
     } else {
       return cell[0];
     }
   }
-  
-
-
-
-  
-
-
-
-  // useEffect(() => {
-		// if (generation === 0) {
-		// 	let cellRow = [];
-		// 	for (let i = 0; i < numRows; i++) {
-		// 		for (let j = 0; j < numCols; j++) {
-		// 			cellRow.push(
-		// 				<Cell 
-		// 					key={[i,j]} 
-		// 					status={setInitialGrid()} 
-		// 					// pendingStatus={cellPendingStatus()} 
-		// 					cordx={i} 
-		// 					cordy={j} 
-		// 				/>
-		// 			);
-		// 		}
-		// 		addRow(<div className="row" key={i} >{cellRow}</div>);
-		// 		cellRow = [];
-		// 	}
-    // } else {
-    //   const gen = advanceGeneration();
-      
-    //   console.log('gen>>>', gen);
-    //   let cellRow = [];
-    //   setCellGrid([]);
-		// 	for (let i = 0; i < numRows; i++) {
-		// 		for (let j = 0; j < numCols; j++) {
-		// 			cellRow.push(
-		// 				<Cell 
-		// 					key={[i,j]} 
-		// 					status={cellStatus(gen[i][j])} 
-		// 					cordx={i} 
-		// 					cordy={j} 
-		// 				/>
-		// 			);
-		// 		}
-		// 		addRow(<div className="row" key={i} >{cellRow}</div>);
-		// 		cellRow = [];
-		// 	}
-		// }
-	// }, [generation]);
-
-
-
-  // console.log('cellGrid', cellGrid)
 
   return (
+    <>
       <Grid 
-        // cellGen={generation}
-        cellGrid={cellGrid}
+        cellGrid={gridResults}
       />
+    </>
   );
 
 
