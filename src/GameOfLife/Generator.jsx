@@ -1,8 +1,10 @@
-// Rules of Conway's Game of life
-// Any live cell with fewer than two live neighbours dies, as if by underpopulation.
-// Any live cell with two or three live neighbours lives on to the next generation.
-// Any live cell with more than three live neighbours dies, as if by overpopulation.
-// Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+/************************************************************************************************
+ * Rules of Conway's Game of life
+ * Any live cell with fewer than two live neighbours dies, as if by underpopulation.
+ * Any live cell with two or three live neighbours lives on to the next generation.
+ * Any live cell with more than three live neighbours dies, as if by overpopulation.
+ * Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
+ ***********************************************************************************************/
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import Grid from './Grid';
@@ -10,11 +12,10 @@ import Cell from './Cell';
 
 const Generator = props => {
 
-  const numRows = 50;
-	const numCols = 50;
+  const numRows = 25;
+	const numCols = 25;
 
   const [generation, setGeneration] = useState(0);
-  const [cellGrid, setCellGrid] = useState([]);
   const [gridResults, setGridResults] = useState([]);
 
   const findNeighbors = (universe, x, y) => {
@@ -37,9 +38,8 @@ const Generator = props => {
     }
   };
  
-
-  const doingStuff = useCallback(() => {
-      const universe = cellGrid.map(grid => grid.props.children);
+  const mapNeighbors = useCallback(() => {
+      const universe = gridResults.map(grid => grid.props.children);
       let tempGrid = [];
       universe.map(row => {
         let rows = row.map(c => {
@@ -48,52 +48,42 @@ const Generator = props => {
         tempGrid.push(rows);
       });
       return tempGrid;
-  }, [cellGrid]);
-
-
+  }, [gridResults]);
 
   const buildGrid = useCallback(() => {
     let cellRow = [];
-    setCellGrid([]);
-    let testGrid = [];
-    if (generation > 0) { testGrid = doingStuff(); }
+    let tempGrid = [];
+    let tempResults = [];
+    if (generation > 0) { tempGrid = mapNeighbors(); }
     for (let i = 0; i < numRows; i++) {
       for (let j = 0; j < numCols; j++) {
         cellRow.push(
           <Cell 
             key={[i,j]} 
-            status={generation === 0 ? setInitialGrid() : cellStatus(testGrid[i][j])} 
+            status={generation === 0 ? setInitialGrid() : cellStatus(tempGrid[i][j])} 
             cordx={i} 
             cordy={j} 
           />
         );
       }
       const row = <div className="row" key={i} >{cellRow}</div>;
-      setCellGrid(cellGrid => [...cellGrid, row])
+      tempResults.push(row)
       cellRow = [];
     }
-    console.log('cellGrid >>>>> ', cellGrid)
-    return cellGrid;
-  }, [generation, doingStuff, cellGrid])
-
-
+    return tempResults;
+  }, [generation, mapNeighbors]);
 
   useEffect(() => {
     const test = setInterval(function () {
       if (generation < 50) {
-        console.log('generation:', generation)
         setGridResults(buildGrid())
         setGeneration(generation => generation + 1);
-        console.log('>>>><<<<<',gridResults)
       }
     }, 1000);
     return () => {
       clearInterval(test);
     }
   }, [generation, buildGrid, gridResults]);
-
-
-  
 
 	const setInitialGrid = () => {
     return Math.random() < 0.3 ? 'live' : 'dead';
@@ -114,14 +104,10 @@ const Generator = props => {
   }
 
   return (
-    <>
-      <Grid 
-        cellGrid={gridResults}
-      />
-    </>
+    <Grid 
+      cellGrid={gridResults}
+    />
   );
-
-
 }
 
 export default Generator;
