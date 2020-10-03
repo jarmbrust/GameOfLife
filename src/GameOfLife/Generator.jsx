@@ -1,4 +1,4 @@
-/************************************************************************************************
+/***********************************************************************************************
  * Rules of Conway's Game of life
  * Any live cell with fewer than two live neighbours dies, as if by underpopulation.
  * Any live cell with two or three live neighbours lives on to the next generation.
@@ -6,17 +6,16 @@
  * Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
  ***********************************************************************************************/
 
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Grid from './Grid';
 import Cell from './Cell';
 
 const Generator = props => {
 
-  const numRows = 25;
-	const numCols = 25;
-
+  const { numRows, numCols, seedChance, numGenerations, start, speed } = props;
   const [generation, setGeneration] = useState(0);
   const [gridResults, setGridResults] = useState([]);
+
 
   const findNeighbors = (universe, x, y) => {
     let neighborCount = 0;
@@ -37,7 +36,8 @@ const Generator = props => {
       return [];
     }
   };
- 
+
+   
   const mapNeighbors = useCallback(() => {
       const universe = gridResults.map(grid => grid.props.children);
       let tempGrid = [];
@@ -45,12 +45,17 @@ const Generator = props => {
         let rows = row.map(c => {
           return findNeighbors(universe, c.props.cordx, c.props.cordy);
         });
-        tempGrid.push(rows);
+        return tempGrid.push(rows);
       });
       return tempGrid;
   }, [gridResults]);
 
+
   const buildGrid = useCallback(() => {
+    const setInitialGrid = () => {
+      return Math.random() < seedChance ? 'live' : 'dead';
+    };
+
     let cellRow = [];
     let tempGrid = [];
     let tempResults = [];
@@ -71,24 +76,22 @@ const Generator = props => {
       cellRow = [];
     }
     return tempResults;
-  }, [generation, mapNeighbors]);
+  }, [generation, mapNeighbors, numRows, numCols, seedChance]);
+
 
   useEffect(() => {
     const test = setInterval(function () {
-      if (generation < 50) {
+      if (generation < numGenerations && start) {
         setGridResults(buildGrid())
         setGeneration(generation => generation + 1);
       }
-    }, 1000);
+    }, speed);
     return () => {
       clearInterval(test);
     }
-  }, [generation, buildGrid, gridResults]);
+  }, [start, buildGrid, generation, numGenerations, speed])
 
-	const setInitialGrid = () => {
-    return Math.random() < 0.3 ? 'live' : 'dead';
-	};
-	
+
 	const cellStatus = cell=> {
     if (cell[0] === 'live' && cell[1] < 2) {
       return 'dead';
@@ -102,6 +105,7 @@ const Generator = props => {
       return cell[0];
     }
   }
+
 
   return (
     <Grid 
