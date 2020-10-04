@@ -12,7 +12,7 @@ import Cell from './Cell';
 
 const Generator = props => {
 
-  const { numRows, numCols, seedChance, numGenerations, start, speed } = props;
+  const { numRows, numCols, seedChance, numGenerations, start, speed, incrementGeneration } = props;
   const [generation, setGeneration] = useState(0);
   const [gridResults, setGridResults] = useState([]);
 
@@ -83,13 +83,14 @@ const Generator = props => {
     const test = setInterval(function () {
       if (generation < numGenerations && start) {
         setGridResults(buildGrid())
-        setGeneration(generation => generation + 1);
+        setGeneration(generation + 1);
+        incrementGeneration();
       }
     }, speed);
     return () => {
       clearInterval(test);
     }
-  }, [start, buildGrid, generation, numGenerations, speed])
+  }, [start, buildGrid, generation, numGenerations, speed, incrementGeneration])
 
 
 	const cellStatus = cell=> {
