@@ -3,9 +3,9 @@ import Generator from './Generator';
 
 const Interface = props => {
   
+  // these two values need to be set by user
   let numRows = 30;
   let numCols = 30;
-  // let maxGeneration = 30;
 
   const [start, setStart] = useState(false);
   const [numGenerations, setNumGenerations] = useState(0);
@@ -15,12 +15,18 @@ const Interface = props => {
     setStart(true);
   };
 
-  const populateGrid = () => {
-
+  const seedInitialGrid = () => {
+    // resets the grid to the inital population, called from resetGame and at the start of a new game
   };
 
+  const resetGame = () => {
+    setStart(false);
+    setNumGenerations(0);
+    seedInitialGrid();
+  }
+
   const setGeneration = value => {
-    if (value < 1 || value > 100) {
+    if (value && (value < 1 || value > 100)) {
       alert('between 1 and 100 generations allowed at this time');
     } else {
       setMaxGenerations(value);
@@ -41,8 +47,8 @@ const Interface = props => {
     <>
       <div className="user-interface">
         <div>
-          <button className="btn-seed" onClick={populateGrid}>
-            Seed
+          <button className="btn-reset" onClick={resetGame}>
+            Reset
           </button>
           <button className="btn-start" onClick={startGenerating}>
             Start
